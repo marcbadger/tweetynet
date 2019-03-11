@@ -120,8 +120,15 @@ def train(config_file):
     logger.info('Total duration of training set (in s): {}'
                 .format(total_train_set_duration))
 
+    TRAIN_SET_DURS = [int(element)
+                      for element in
+                      config['TRAIN']['train_set_durs'].split(',')]
+
     logger.info('Will train network with training sets of '
                 'following durations (in s): {}'.format(TRAIN_SET_DURS))
+
+    train_set_dur = TRAIN_SET_DURS[4]
+    replicate = 0
 
     # transpose X_train, so rows are timebins and columns are frequency bins
     # because cnn-bilstm network expects this orientation for input
@@ -230,6 +237,12 @@ def train(config_file):
                         'Y_train_subset': Y_train}
     joblib.dump(scaled_data_dict, scaled_data_filename)
 
+    train_inds = tweetynet.utils.get_inds_for_dur(X_train_spect_ID_vector,
+                                                   Y_train,
+                                                   labels_mapping,
+                                                   train_set_dur,
+                                                   timebin_dur)
+
     # reshape data for network
     batch_spec_rows = len(train_inds) // batch_size
 
@@ -250,6 +263,7 @@ def train(config_file):
                                                diff))
     logger.info('Difference in seconds: {}'.format(diff * timebin_dur))
 
+    X_train_subset = scaled_data_dict['X_train_subset_scaled']
     # note that X_train_subset has shape of (batch, time_bins, frequency_bins)
     # so we permute starting indices from the number of time_bins
     # i.e. X_train_subset.shape[1]
