@@ -149,8 +149,8 @@ def make_data(config_file):
                 raise FileNotFoundError('No .cbin or .wav files found in {} or'
                                         'immediate sub-directories'
                                         .format(data_dir))
-            # look for canary annotation
-            annotation_file = glob(os.path.join(data_dir, '*annotation*.mat'))
+            # look for canary annotation (as .csv or .mat)
+            annotation_file = glob(os.path.join(data_dir, '*annotation*.*'))
             if len(annotation_file) == 1:
                 annotation_file = annotation_file[0]
             else:  # try Koumura song annotation

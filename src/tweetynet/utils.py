@@ -259,6 +259,21 @@ def make_spects_from_list_of_files(filelist,
                 elements_key = elements_key[0]
                 annot_keys = annotations[keys_key].tolist()
                 annot_elements = annotations[elements_key]
+            # Note: Edited by Ammon Perkes and Marc Badger to handle .csv
+            elif annotation_file.endswith('.csv'):
+                annotations_csv = np.genfromtxt(annotation_file,
+                                                delimiter=',',dtype=None, encoding=None)
+                annotations = np.array([list(an) for an in annotations_csv])
+                #annotations_csv = np.delete(annotations_csv, (0), axis = 0) # delete a header row
+                songfiles = np.unique(annotations[:,0])
+                annotation_dict = {} ## of the format 
+                for songfile in songfiles:
+                    song_annotations = np.array([an for an in annotations if an[0] == songfile])
+                    onsets = song_annotations[:,1].astype(np.float)
+                    offsets = song_annotations[:,2].astype(np.float)
+                    labels = song_annotations[:,3]
+                    songfile_dict = dict(zip(['onsets','offsets','labels'],[onsets,offsets,labels]))
+                    annotation_dict[songfile] = songfile_dict
             elif annotation_file.endswith('.xml'):
                 annotation_dict = load_song_annot(filelist, annotation_file)
 
@@ -291,7 +306,7 @@ def make_spects_from_list_of_files(filelist,
                 this_labels_str = annotation['segType'].tolist()
                 onsets = annotation['segFileStartTimes'].tolist()
                 offsets = annotation['segFileEndTimes'].tolist()
-            elif annotation_file.endswith('.xml'):
+            elif annotation_file.endswith('.xml') or annotation_file.endswith('.csv'):
                 filename_key = os.path.basename(filename)
                 this_labels_str = annotation_dict[filename_key]['labels']
                 onsets = annotation_dict[filename_key]['onsets'] / fs

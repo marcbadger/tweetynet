@@ -81,9 +81,9 @@ def main():
         config_files = config_files_cleaned
 
         for config_file in config_files:
-            tweetynet.make_data(config_file)
-            tweetynet.train(config_file)
-            tweetynet.learn_curve(config_file)
+            tweetynet.cli.make_data(config_file)
+            tweetynet.cli.train(config_file)
+            tweetynet.cli.learn_curve(config_file)
     elif args.predict:
         tweetynet.cli.predict(args.predict)
     elif args.summary:
